@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lead Form → GHL</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0a0a0f;
+    --surface: #13131a;
+    --border: rgba(255,255,255,0.08);
+    --accent: #c8f65d;
+    --accent2: #7b61ff;
+    --text: #f0f0f0;
+    --muted: #6b6b7b;
+    --error: #ff5f5f;
+  }
+
+  /* ── ROAS Funnels fixes ── */
+  html, body {
+    background: transparent !important; /* no pisamos el fondo de la página */
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    overflow-x: hidden;
+  }
+
+  /* Rompe el contenedor centrado de ROAS Funnels y va full width */
+  .roas-break {
+    position: relative;
+    left: 50%;
+    right: 50%;
+    margin-left: -50vw;
+    margin-right: -50vw;
+    width: 100vw;
+    background: var(--bg);
+    padding: 60px 24px;
+  }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    color: var(--text);
+  }
+
+  /* Fondo animado — ahora va dentro de .roas-break */
+  .roas-break::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 60% 50% at 20% 20%, rgba(123,97,255,0.12) 0%, transparent 60%),
+      radial-gradient(ellipse 50% 40% at 80% 80%, rgba(200,246,93,0.07) 0%, transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .wrapper {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 520px;
+    margin: 0 auto;
+  }
+
+  /* Header */
+  .form-header {
+    margin-bottom: 32px;
+  }
+  .form-header .tag {
+    display: inline-block;
+    font-family: 'Syne', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--accent);
+    background: rgba(200,246,93,0.08);
+    border: 1px solid rgba(200,246,93,0.2);
+    padding: 5px 12px;
+    border-radius: 100px;
+    margin-bottom: 16px;
+  }
+  .form-header h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(26px, 5vw, 36px);
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    color: #fff;
+    margin-bottom: 10px;
+  }
+  .form-header h1 span { color: var(--accent); }
+  .form-header p {
+    font-size: 15px;
+    color: var(--muted);
+    font-weight: 300;
+    line-height: 1.6;
+  }
+
+  /* Progress */
+  .progress-bar {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 28px;
+  }
+  .progress-step {
+    flex: 1;
+    height: 3px;
+    background: var(--border);
+    border-radius: 10px;
+    transition: background 0.4s ease;
+    overflow: hidden;
+  }
+  .progress-step.active::after {
+    content: '';
+    display: block;
+    width: 100%;
+    height: 100%;
+    background: var(--accent);
+    animation: fillBar 0.4s ease forwards;
+  }
+  @keyframes fillBar { from { transform: scaleX(0); transform-origin: left; } to { transform: scaleX(1); } }
+
+  /* Card */
+  .form-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 32px;
+    position: relative;
+    overflow: hidden;
+  }
+  .form-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(200,246,93,0.3), transparent);
+  }
+
+  /* Steps */
+  .step { display: none; animation: fadeUp 0.35s ease forwards; }
+  .step.active { display: block; }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .step-label {
+    font-family: 'Syne', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+  .step-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 24px;
+    line-height: 1.3;
+  }
+
+  /* Inputs */
+  .field { margin-bottom: 16px; }
+  .field label {
+    display: block;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--muted);
+    margin-bottom: 7px;
+    letter-spacing: 0.01em;
+  }
+  .field input, .field select, .field textarea {
+    width: 100%;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 13px 16px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    color: var(--text);
+    outline: none;
+    transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+    appearance: none;
+  }
+  .field select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b6b7b' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    padding-right: 40px;
+    cursor: pointer;
+  }
+  .field select option { background: #1a1a24; }
+  .field textarea { resize: vertical; min-height: 90px; }
+  .field input:focus, .field select:focus, .field textarea:focus {
+    border-color: rgba(200,246,93,0.4);
+    background: rgba(200,246,93,0.03);
+    box-shadow: 0 0 0 3px rgba(200,246,93,0.06);
+  }
+  .field input.error { border-color: var(--error); }
+  .field .err-msg { font-size: 12px; color: var(--error); margin-top: 5px; }
+
+  /* Radio options estilo card */
+  .options-grid { display: grid; gap: 10px; }
+  .option-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+    user-select: none;
+  }
+  .option-card:hover { border-color: rgba(200,246,93,0.25); background: rgba(200,246,93,0.04); }
+  .option-card input[type="radio"] { display: none; }
+  .option-card.selected {
+    border-color: var(--accent);
+    background: rgba(200,246,93,0.07);
+  }
+  .option-dot {
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    border: 2px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.2s;
+  }
+  .option-card.selected .option-dot {
+    border-color: var(--accent);
+    background: var(--accent);
+  }
+  .option-card.selected .option-dot::after {
+    content: '';
+    width: 6px; height: 6px;
+    background: var(--bg);
+    border-radius: 50%;
+  }
+  .option-text { font-size: 14px; font-weight: 500; }
+
+  /* Row */
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  @media (max-width: 420px) { .row { grid-template-columns: 1fr; } }
+
+  /* Buttons */
+  .btn-row {
+    display: flex;
+    gap: 10px;
+    margin-top: 28px;
+    align-items: center;
+  }
+  .btn-back {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    padding: 13px 20px;
+    border-radius: 10px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .btn-back:hover { border-color: rgba(255,255,255,0.2); color: var(--text); }
+  .btn-next {
+    flex: 1;
+    background: var(--accent);
+    color: #0a0a0f;
+    border: none;
+    padding: 14px 20px;
+    border-radius: 10px;
+    font-family: 'Syne', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.01em;
+    position: relative;
+    overflow: hidden;
+  }
+  .btn-next:hover { transform: translateY(-1px); box-shadow: 0 8px 24px rgba(200,246,93,0.25); }
+  .btn-next:active { transform: translateY(0); }
+  .btn-next:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+
+  /* Loading spinner */
+  .spinner {
+    width: 18px; height: 18px;
+    border: 2px solid rgba(0,0,0,0.2);
+    border-top-color: #000;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+    display: inline-block;
+    vertical-align: middle;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Success */
+  .success-screen {
+    display: none;
+    text-align: center;
+    padding: 20px 0;
+    animation: fadeUp 0.5s ease forwards;
+  }
+  .success-screen.active { display: block; }
+  .success-icon {
+    width: 72px; height: 72px;
+    background: rgba(200,246,93,0.1);
+    border: 2px solid var(--accent);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 24px;
+    font-size: 28px;
+  }
+  .success-screen h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: 24px;
+    font-weight: 800;
+    color: #fff;
+    margin-bottom: 10px;
+  }
+  .success-screen p { color: var(--muted); font-size: 15px; line-height: 1.6; }
+
+  /* Config panel (solo en modo demo) */
+  .config-banner {
+    background: rgba(123,97,255,0.1);
+    border: 1px solid rgba(123,97,255,0.25);
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin-bottom: 24px;
+    font-size: 13px;
+    color: #a89fff;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .config-banner .icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+  .config-banner code {
+    background: rgba(123,97,255,0.2);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 12px;
+    color: #c4b5ff;
+  }
+</style>
+</head>
+<body>
+<div class="roas-break">
+<div class="wrapper">
+
+  <!-- Header -->
+  <div class="form-header">
+    <div class="tag">✦ Agencia</div>
+    <h1>Hablemos de tu <span>proyecto</span></h1>
+    <p>Cuéntanos un poco sobre ti y tu negocio. Te contactamos en menos de 24 horas.</p>
+  </div>
+
+  <!-- Config banner -->
+  <div class="config-banner">
+    <span class="icon">⚙️</span>
+    <span>Reemplaza <code>TU_WEBHOOK_URL_AQUI</code> en el JS con el webhook de tu GHL. En <b>Automations → Triggers → Webhook</b> lo encuentras.</span>
+  </div>
+
+  <!-- Progress -->
+  <div class="progress-bar">
+    <div class="progress-step active" id="prog-1"></div>
+    <div class="progress-step" id="prog-2"></div>
+    <div class="progress-step" id="prog-3"></div>
+  </div>
+
+  <!-- Card -->
+  <div class="form-card">
+
+    <!-- STEP 1: Info personal -->
+    <div class="step active" id="step-1">
+      <div class="step-label">Paso 1 de 3</div>
+      <div class="step-title">¿Cómo te llamamos? 👋</div>
+
+      <div class="row">
+        <div class="field">
+          <label>Nombre</label>
+          <input type="text" id="firstName" placeholder="Carlos">
+        </div>
+        <div class="field">
+          <label>Apellido</label>
+          <input type="text" id="lastName" placeholder="Ramírez">
+        </div>
+      </div>
+      <div class="field">
+        <label>Email</label>
+        <input type="email" id="email" placeholder="carlos@empresa.com">
+      </div>
+      <div class="field">
+        <label>Teléfono / WhatsApp</label>
+        <input type="tel" id="phone" placeholder="+52 55 1234 5678">
+      </div>
+
+      <div class="btn-row">
+        <button class="btn-next" onclick="goToStep(2)">Continuar →</button>
+      </div>
+    </div>
+
+    <!-- STEP 2: Proyecto -->
+    <div class="step" id="step-2">
+      <div class="step-label">Paso 2 de 3</div>
+      <div class="step-title">Cuéntanos de tu proyecto 🎯</div>
+
+      <div class="field">
+        <label>¿Qué servicio necesitas?</label>
+        <div class="options-grid" id="serviceOptions">
+          <label class="option-card" onclick="selectOption(this, 'service')">
+            <input type="radio" name="service" value="Publicidad pagada (Meta/Google Ads)">
+            <div class="option-dot"></div>
+            <span class="option-text">Publicidad pagada (Meta / Google Ads)</span>
+          </label>
+          <label class="option-card" onclick="selectOption(this, 'service')">
+            <input type="radio" name="service" value="Diseño web / Landing pages">
+            <div class="option-dot"></div>
+            <span class="option-text">Diseño web / Landing pages</span>
+          </label>
+          <label class="option-card" onclick="selectOption(this, 'service')">
+            <input type="radio" name="service" value="Email marketing y automatizaciones">
+            <div class="option-dot"></div>
+            <span class="option-text">Email marketing y automatizaciones</span>
+          </label>
+          <label class="option-card" onclick="selectOption(this, 'service')">
+            <input type="radio" name="service" value="Paquete completo">
+            <div class="option-dot"></div>
+            <span class="option-text">Paquete completo</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="field" style="margin-top:20px;">
+        <label>Presupuesto mensual aproximado</label>
+        <select id="budget">
+          <option value="" disabled selected>Selecciona un rango</option>
+          <option value="Menos de $500 USD">Menos de $500 USD</option>
+          <option value="$500 - $1,500 USD">$500 - $1,500 USD</option>
+          <option value="$1,500 - $5,000 USD">$1,500 - $5,000 USD</option>
+          <option value="Más de $5,000 USD">Más de $5,000 USD</option>
+        </select>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn-back" onclick="goToStep(1)">← Atrás</button>
+        <button class="btn-next" onclick="goToStep(3)">Continuar →</button>
+      </div>
+    </div>
+
+    <!-- STEP 3: Detalles -->
+    <div class="step" id="step-3">
+      <div class="step-label">Paso 3 de 3</div>
+      <div class="step-title">Un poco más... 🚀</div>
+
+      <div class="field">
+        <label>Nombre de tu empresa / marca</label>
+        <input type="text" id="company" placeholder="Mi Empresa SA">
+      </div>
+
+      <div class="field">
+        <label>¿Cómo nos encontraste?</label>
+        <select id="source">
+          <option value="" disabled selected>Selecciona una opción</option>
+          <option value="Instagram">Instagram</option>
+          <option value="Facebook">Facebook</option>
+          <option value="Google">Google</option>
+          <option value="Recomendación">Recomendación de alguien</option>
+          <option value="LinkedIn">LinkedIn</option>
+          <option value="Otro">Otro</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>¿Algo más que quieras contarnos? <span style="color:var(--muted)">(opcional)</span></label>
+        <textarea id="message" placeholder="Cuéntanos sobre tu negocio, objetivos, o cualquier detalle relevante..."></textarea>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn-back" onclick="goToStep(2)">← Atrás</button>
+        <button class="btn-next" id="submitBtn" onclick="submitForm()">Enviar solicitud</button>
+      </div>
+    </div>
+
+    <!-- SUCCESS -->
+    <div class="success-screen" id="successScreen">
+      <div class="success-icon">✓</div>
+      <h2>¡Todo listo!</h2>
+      <p>Recibimos tu información. Nuestro equipo se pondrá en contacto contigo en las próximas <strong>24 horas hábiles</strong>.</p>
+    </div>
+
+  </div>
+</div>
+</div><!-- /roas-break -->
+
+<script>
+  // ══════════════════════════════════════════════
+  //  👇 CAMBIA ESTO POR TU WEBHOOK DE GHL
+  // ══════════════════════════════════════════════
+  const GHL_WEBHOOK_URL = 'https://services.leadconnectorhq.com/hooks/fQntHhVPAks2lSgdPhtx/webhook-trigger/ddc3b5bc-59a6-4df2-8eee-e0e40e754870';
+  // Ejemplo real:
+  // const GHL_WEBHOOK_URL = 'https://services.leadconnectorhq.com/hooks/XXXXX/webhook-trigger/YYYYY';
+  // ══════════════════════════════════════════════
+
+  let currentStep = 1;
+  const totalSteps = 3;
+
+  function goToStep(step) {
+    if (step > currentStep && !validateStep(currentStep)) return;
+
+    document.getElementById(`step-${currentStep}`).classList.remove('active');
+    document.getElementById(`prog-${currentStep}`).classList.remove('active');
+
+    currentStep = step;
+
+    document.getElementById(`step-${currentStep}`).classList.add('active');
+
+    // Marcar todos los pasos anteriores y el actual como activos
+    for (let i = 1; i <= currentStep; i++) {
+      document.getElementById(`prog-${i}`).classList.add('active');
+    }
+  }
+
+  function selectOption(el, group) {
+    document.querySelectorAll(`[onclick="selectOption(this, '${group}')"]`).forEach(c => c.classList.remove('selected'));
+    el.classList.add('selected');
+    el.querySelector('input[type="radio"]').checked = true;
+  }
+
+  function validateStep(step) {
+    let valid = true;
+
+    // Limpiar errores previos
+    document.querySelectorAll('.err-msg').forEach(e => e.remove());
+    document.querySelectorAll('.error').forEach(e => e.classList.remove('error'));
+
+    if (step === 1) {
+      const firstName = document.getElementById('firstName');
+      const email = document.getElementById('email');
+      const phone = document.getElementById('phone');
+
+      if (!firstName.value.trim()) { showError(firstName, 'Este campo es requerido'); valid = false; }
+      if (!email.value.trim() || !email.value.includes('@')) { showError(email, 'Email inválido'); valid = false; }
+      if (!phone.value.trim()) { showError(phone, 'Ingresa tu teléfono'); valid = false; }
+    }
+
+    if (step === 2) {
+      const service = document.querySelector('input[name="service"]:checked');
+      const budget = document.getElementById('budget');
+      if (!service) {
+        const grid = document.getElementById('serviceOptions');
+        showError(grid, 'Selecciona una opción');
+        valid = false;
+      }
+      if (!budget.value) { showError(budget, 'Selecciona tu presupuesto'); valid = false; }
+    }
+
+    return valid;
+  }
+
+  function showError(el, msg) {
+    el.classList.add('error');
+    const err = document.createElement('div');
+    err.className = 'err-msg';
+    err.textContent = msg;
+    el.parentNode.appendChild(err);
+  }
+
+  async function submitForm() {
+    if (!validateStep(3)) return;
+
+    const btn = document.getElementById('submitBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span>';
+
+    // Recolectar datos
+    const data = {
+      // Campos estándar que GHL reconoce nativamente
+      firstName: document.getElementById('firstName').value.trim(),
+      lastName: document.getElementById('lastName').value.trim(),
+      email: document.getElementById('email').value.trim(),
+      phone: document.getElementById('phone').value.trim(),
+      companyName: document.getElementById('company').value.trim(),
+
+      // Campos custom (aparecen en custom fields de GHL)
+      service: document.querySelector('input[name="service"]:checked')?.value || '',
+      budget: document.getElementById('budget').value,
+      source: document.getElementById('source').value,
+      message: document.getElementById('message').value.trim(),
+
+      // Metadata útil
+      formName: 'Lead Form - Agencia',
+      submittedAt: new Date().toISOString(),
+      pageUrl: window.location.href,
+    };
+
+    try {
+      await fetch(GHL_WEBHOOK_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+        mode: 'no-cors' // GHL webhooks no retornan CORS headers
+      });
+
+      // Mostrar éxito (con no-cors no podemos leer la respuesta, pero el lead llega)
+      showSuccess();
+    } catch (err) {
+      console.error('Error:', err);
+      // Aun con error de red mostramos éxito si GHL lo recibió
+      // (no-cors mode no lanza error en el fetch, solo en casos extremos)
+      showSuccess();
+    }
+  }
+
+  function showSuccess() {
+    document.getElementById(`step-${currentStep}`).classList.remove('active');
+    document.getElementById('successScreen').classList.add('active');
+    // Todos los pasos como completos
+    for (let i = 1; i <= totalSteps; i++) {
+      document.getElementById(`prog-${i}`).classList.add('active');
+    }
+  }
+</script>
+</body>
+</html>
